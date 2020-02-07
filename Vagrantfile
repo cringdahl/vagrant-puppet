@@ -31,8 +31,8 @@ $set_host_file="cat <<EOF > /etc/hosts\n"+$hostfiledata+"\nEOF\n"
 
 Vagrant.configure VAGRANTFILE_API_VERSION do |config|
   config.vm.provider "virtualbox" do |v|
-    v.memory = 1024
-    v.cpus = 1
+    v.memory = 2048
+    v.cpus = 2
   end
   
 #  if Vagrant.has_plugin?("vagrant-cachier")
@@ -46,7 +46,7 @@ Vagrant.configure VAGRANTFILE_API_VERSION do |config|
   config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
 
   config.vm.define :puppetmaster do |pm|
-    pm.vm.box = "boxcutter/ubuntu1604"
+    pm.vm.box = "ubuntu/xenial64"
     pm.vm.hostname = "#{MASTERNAME}.#{DOMAIN}"
     pm.vm.network :private_network, ip: "#{MASTERIP}" 
     pm.vm.network :forwarded_port, guest: 5000, host: 5000
@@ -60,7 +60,7 @@ Vagrant.configure VAGRANTFILE_API_VERSION do |config|
   end
 
   config.vm.define :puppetdb do |pm|
-    pm.vm.box = "boxcutter/ubuntu1604"
+    pm.vm.box = "ubuntu/xenial64"
     pm.vm.hostname = "#{DBNAME}.#{DOMAIN}"
     pm.vm.network :private_network, ip: "#{DBIP}" 
     pm.vm.provision :shell, :inline => $set_host_file
@@ -68,7 +68,7 @@ Vagrant.configure VAGRANTFILE_API_VERSION do |config|
   end
 
   config.vm.define :puppetreports do |pm|
-    pm.vm.box = "boxcutter/ubuntu1604"
+    pm.vm.box = "ubuntu/xenial64"
     pm.vm.hostname = "#{REPORTSNAME}.#{DOMAIN}"
     pm.vm.network :private_network, ip: "#{REPORTSIP}" 
     pm.vm.network :forwarded_port, guest: 5000, host: 5001
@@ -78,7 +78,7 @@ Vagrant.configure VAGRANTFILE_API_VERSION do |config|
 
   AGENTS.each_with_index do |agent,index|
     config.vm.define "#{agent}".to_sym do |ag|
-        ag.vm.box = "boxcutter/ubuntu1604"
+        ag.vm.box = "ubuntu/xenial64"
         ag.vm.hostname = "#{agent}.#{DOMAIN}"
         ag.vm.network :private_network, ip: "#{SUBNET}.#{index+10}"
         ag.vm.provision :shell, :inline => $set_host_file

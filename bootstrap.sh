@@ -3,12 +3,12 @@ echo "Bootstrapping"
 release=`grep DISTRIB_CODENAME /etc/lsb-release | cut -d "=" -f 2`
 env="production"
 
-echo "Modifying apt sources to rely on AWS Europe"
-cat > /etc/apt/sources.list <<EOF
-deb http://eu-west-1.ec2.archive.ubuntu.com/ubuntu/ ${release} main restricted universe multiverse
-deb http://eu-west-1.ec2.archive.ubuntu.com/ubuntu/ ${release}-updates main restricted universe multiverse
-deb http://eu-west-1.ec2.archive.ubuntu.com/ubuntu/ ${release}-security main restricted universe multiverse
-EOF
+#echo "Modifying apt sources to rely on AWS Europe"
+#cat > /etc/apt/sources.list <<EOF
+#deb http://eu-west-1.ec2.archive.ubuntu.com/ubuntu/ ${release} main restricted universe multiverse
+#deb http://eu-west-1.ec2.archive.ubuntu.com/ubuntu/ ${release}-updates main restricted universe multiverse
+#deb http://eu-west-1.ec2.archive.ubuntu.com/ubuntu/ ${release}-security main restricted universe multiverse
+#EOF
 
 
 echo "Configuring puppetlabs repo"
@@ -64,7 +64,7 @@ echo "Installing hiera-eyaml gem"
 /opt/puppetlabs/puppet/bin/gem install hiera-eyaml --no-ri --no-rdoc > /dev/null
 
 echo "Installing r10k gem"
-/opt/puppetlabs/puppet/bin/gem install r10k --no-ri --no-rdoc > /dev/null
+/opt/puppetlabs/puppet/bin/gem install r10k --no-ri --no-rdoc -v 2.6.4 > /dev/null
 echo "Deploying with r10k"
 /opt/puppetlabs/puppet/bin/r10k deploy environment -v -p
 

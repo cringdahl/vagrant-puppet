@@ -26,7 +26,7 @@ cat > /etc/puppetlabs/puppet/hiera.yaml <<EOF
 version: 5
 defaults:
   # this is a bad fix from a puppet perspective
-  datadir: /etc/puppetlabs/environment/production/hieradata
+  datadir: /etc/puppetlabs/code/environments/production/hieradata
   data_hash: yaml_data
 hierarchy:
   - name: "per-node data"

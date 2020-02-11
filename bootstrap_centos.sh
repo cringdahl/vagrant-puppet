@@ -4,9 +4,11 @@ release=`cat /etc/centos-release | cut -d " " -f 4 | cut -d "." -f 1`
 env="production"
 
 echo "Configuring puppetlabs repo"
+#yum install -y wget
 #wget -q https://yum.puppetlabs.com/puppetlabs-release-pc1-el-$release.noarch.rpm -O /tmp/puppetlabs.rpm
-wget -q http://yum.puppet.com/puppet6/puppet6-release-el-7.noarch.rpm -O /tmp/puppetlabs.rpm
-sudo rpm -i /tmp/puppetlabs.rpm > /dev/null
+#wget -q http://yum.puppet.com/puppet6/puppet6-release-el-7.noarch.rpm -O /tmp/puppetlabs.rpm
+#sudo rpm -i /tmp/puppetlabs.rpm > /dev/null
+sudo rpm -Uvh http://yum.puppet.com/puppet6/puppet6-release-el-7.noarch.rpm
 echo "Updating yum cache"
 sudo yum check-update > /dev/null
 echo "Installing puppet-agent and git"
@@ -25,21 +27,21 @@ chmod 0400 /var/lib/puppet/secure/keys/*
 echo "Creating hiera.yaml"
 cat > /etc/puppetlabs/puppet/hiera.yaml <<EOF
 ---
-:backends:
-  - eyaml
-  - yaml
-:logger: console
-:hierarchy:
-  - "nodes/%{::fqdn}"
-  - common
-
-:yaml:
-   :datadir: /etc/puppetlabs/code/environments/%{::environment}/hieradata
-:eyaml:
-   :datadir: /etc/puppetlabs/code/environments/%{::environment}/hieradata
-   :extension: 'yaml'
-   :pkcs7_private_key: /var/lib/puppet/secure/keys/private_key.pkcs7.pem
-   :pkcs7_public_key: /var/lib/puppet/secure/keys/public_key.pkcs7.pem
+version: 5
+defaults:
+  datadir: data
+  data_hash: yaml_data
+hierarchy:
+  - name: "per-node data"
+    path: "nodes/%{::fqdn}.yaml"
+  - name: "secrets"
+    path: "secrets.eyaml"
+    lookup_key: eyaml_lookup_key
+    options:
+      pkcs7_private_key: /var/lib/puppet/secure/keys/private_key.pkcs7.pem
+      pkcs7_public_key: /var/lib/puppet/secure/keys/public_key.pkcs7.pem
+  - name: "common data"
+    path: "common.yaml"
 EOF
 
 echo "Creating r10k.yaml"
@@ -47,11 +49,11 @@ rm -rf /etc/puppetlabs/code/environments/*
 mkdir -p /etc/puppetlabs/r10k
 cat > /etc/puppetlabs/r10k/r10k.yaml <<EOF
 ---
-:cachedir: /var/cache/r10k
-:sources:
-  :local:
-    remote: https://github.com/lbernail/puppet-r10k.git
-    basedir: /etc/puppetlabs/code/environments
+cachedir: '/var/cache/r10k'
+sources:
+  local:
+    remote: 'https://github.com/lbernail/puppet-r10k.git'
+    basedir: '/etc/puppetlabs/code/environments'
 EOF
 
 echo "Installing hiera-eyaml gem"

@@ -4,8 +4,7 @@ echo "Installing puppet"
 release=`cat /etc/centos-release | cut -d " " -f 4 | cut -d "." -f 1`
 
 echo "Configuring puppetlabs repo"
-wget -q https://yum.puppetlabs.com/puppetlabs-release-pc1-el-$release.noarch.rpm -O /tmp/puppetlabs.rpm
-sudo rpm -i /tmp/puppetlabs.rpm > /dev/null
+sudo rpm -Uvh http://yum.puppet.com/puppet6/puppet6-release-el-7.noarch.rpm
 echo "Updating yum cache"
 sudo yum check-update > /dev/null
 echo "Installing puppet-agent"

@@ -4,10 +4,6 @@ release=`cat /etc/centos-release | cut -d " " -f 4 | cut -d "." -f 1`
 env="production"
 
 echo "Configuring puppetlabs repo"
-#yum install -y wget
-#wget -q https://yum.puppetlabs.com/puppetlabs-release-pc1-el-$release.noarch.rpm -O /tmp/puppetlabs.rpm
-#wget -q http://yum.puppet.com/puppet6/puppet6-release-el-7.noarch.rpm -O /tmp/puppetlabs.rpm
-#sudo rpm -i /tmp/puppetlabs.rpm > /dev/null
 sudo rpm -Uvh http://yum.puppet.com/puppet6/puppet6-release-el-7.noarch.rpm
 echo "Updating yum cache"
 sudo yum check-update > /dev/null
@@ -52,7 +48,7 @@ cat > /etc/puppetlabs/r10k/r10k.yaml <<EOF
 cachedir: '/var/cache/r10k'
 sources:
   local:
-    remote: 'https://github.com/lbernail/puppet-r10k.git'
+    remote: 'https://github.com/cringdahl/puppet-r10k.git'
     basedir: '/etc/puppetlabs/code/environments'
 EOF
 

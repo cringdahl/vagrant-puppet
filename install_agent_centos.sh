@@ -19,4 +19,3 @@ echo "If you saw a cert issue, sign it on master and rerun puppet agent -t --ser
 
 echo "Delete iptables rules"
 sudo iptables --flush > /dev/null 2>&1
-sudo service iptables save > /dev/null 2>&1

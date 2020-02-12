@@ -53,29 +53,29 @@ Vagrant.configure VAGRANTFILE_API_VERSION do |config|
     pm.vm.network :forwarded_port, guest: 5000, host: 5000
     pm.vm.provision :shell, :inline => $set_host_file
     pm.vm.provision :shell, :path => "bootstrap_centos.sh"
-    
+
 #    pm.vm.provider "virtualbox" do |v|
 #      v.memory=2048
 #      v.cpus=2
 #    end
   end
 
-  config.vm.define :puppetdb do |pm|
-    pm.vm.box = "centos/7"
-    pm.vm.hostname = "#{DBNAME}.#{DOMAIN}"
-    pm.vm.network :private_network, ip: "#{DBIP}" 
-    pm.vm.provision :shell, :inline => $set_host_file
-    pm.vm.provision :shell, :path => "install_agent_centos.sh"
-  end
+#  config.vm.define :puppetdb do |pm|
+#    pm.vm.box = "centos/7"
+#    pm.vm.hostname = "#{DBNAME}.#{DOMAIN}"
+#    pm.vm.network :private_network, ip: "#{DBIP}" 
+#    pm.vm.provision :shell, :inline => $set_host_file
+#    pm.vm.provision :shell, :path => "install_agent_centos.sh"
+#  end
 
-  config.vm.define :puppetreports do |pm|
-    pm.vm.box = "centos/7"
-    pm.vm.hostname = "#{REPORTSNAME}.#{DOMAIN}"
-    pm.vm.network :private_network, ip: "#{REPORTSIP}" 
-    pm.vm.network :forwarded_port, guest: 5000, host: 5001
-    pm.vm.provision :shell, :inline => $set_host_file
-    pm.vm.provision :shell, :path => "install_agent_centos.sh"
-  end
+#  config.vm.define :puppetreports do |pm|
+#    pm.vm.box = "centos/7"
+#    pm.vm.hostname = "#{REPORTSNAME}.#{DOMAIN}"
+#    pm.vm.network :private_network, ip: "#{REPORTSIP}" 
+#    pm.vm.network :forwarded_port, guest: 5000, host: 5001
+#    pm.vm.provision :shell, :inline => $set_host_file
+#    pm.vm.provision :shell, :path => "install_agent_centos.sh"
+#  end
 
   AGENTS.each_with_index do |agent,index|
     config.vm.define "#{agent}".to_sym do |ag|

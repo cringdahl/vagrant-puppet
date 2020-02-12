@@ -3,6 +3,8 @@ echo "Bootstrapping"
 release=`cat /etc/centos-release | cut -d " " -f 4 | cut -d "." -f 1`
 env="production"
 
+echo "Configuring EPEL repo"
+rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 echo "Configuring puppetlabs repo"
 sudo rpm -Uvh http://yum.puppet.com/puppet6/puppet6-release-el-7.noarch.rpm
 echo "Updating yum cache"
@@ -30,7 +32,7 @@ defaults:
   data_hash: yaml_data
 hierarchy:
   - name: "per-node data"
-    path: "nodes/%{::fqdn}.yaml"
+    glob: "nodes/*.yaml"
   - name: "secrets"
     path: "secrets.eyaml"
     lookup_key: eyaml_lookup_key

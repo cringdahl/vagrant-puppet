@@ -118,13 +118,14 @@ vagrant snapshot go puppetmaster freshinstall
 ```
 You can find more information here: https://github.com/dergachev/vagrant-vbox-snapshot
 
-
-### Alternative separate install for centos7 support
-
-just add the env var `VAGRANT_VAGRANTFILE=Vagrantfile.centos` before you run commands, it will use the `Vagrantfile.centos` Vagrantfile, `boostrap_centos.sh`, `install_agent_centos.sh` bootstrap files.
-
+### Installing Puppet Modules
+If you have private modules you need installed, you can scp them to your puppetmaster.
+1. Install scp plugin
 ```
-VAGRANT_VAGRANTFILE=Vagrantfile.centos vagrant up puppetmaster
-VAGRANT_VAGRANTFILE=Vagrantfile.centos vagrant up puppetdb
-VAGRANT_VAGRANTFILE=Vagrantfile.centos vagrant up puppetreports
+vagrant plugin install scp
 ```
+2. Transfer the directory.
+```
+vagrant scp /path/to/directory/or/file puppetmaster:.
+```
+3. Login and mv the directory, or run a puppet module install.

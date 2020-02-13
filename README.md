@@ -4,15 +4,15 @@ Configure a puppet development/demo environment with the following components:
 - puppetmaster, puppetdb and puppetboard (either on a single VM or multiple ones)
 - additional nodes to test agents
 - this repository consists of a Vagrantfile defining several possible hosts and bootstrap scripts to install master and agents
-- all the configuration is done via puppet using a control repo synchronized on the master via r10k: https://github.com/lbernail/puppet-r10k
+- all the configuration is done via puppet using a control repo synchronized on the master via r10k: https://github.com/cringdahl/puppet-r10k
 
 ### Bootstrap the puppetmaster in standalone mode
-This installation provides a master with puppetdb and puppetboard on single VM. To use this, your master node needs to have the role **role::master_standalone**. See https://github.com/lbernail/puppet-r10k/blob/production/manifests/nodes.pp for role assignment and https://github.com/lbernail/puppet-r10k/tree/production/site/role/manifests for role list. To change the master role (standalone or not) you will have to fork the puppet-r10k repo, modify theses files and update the r10k configuration in the bootstrap script to use your repo.
+This installation provides a master with puppetdb and puppetboard on single VM. To use this, your master node needs to have the role **role::master_standalone**. See https://github.com/cringdahl/puppet-r10k/blob/production/manifests/nodes.pp for role assignment and https://github.com/cringdahl/puppet-r10k/tree/production/site/role/manifests for role list. To change the master role (standalone or not) you will have to fork the puppet-r10k repo, modify theses files and update the r10k configuration in the bootstrap script to use your repo.
 
 * Install virtualbox and vagrant
 * Clone vagrant files
 ```
-git clone https://github.com/lbernail/vagrant-puppet.git
+git clone https://github.com/cringdahl/vagrant-puppet.git
 ```
 * Go into puppet env, create puppet master and configure it (default box: boxcutter/ubuntu1604)
 ```
@@ -50,7 +50,7 @@ sudo /opt/puppetlabs/puppet/bin/puppet agent -t
 
 
 ### Bootstrap the puppetmaster with separate puppetdb and Puppetboard
-Setting up the master is similar to standalone but the node needs the role **role::master** and you need a node with role **role::puppetdb** and optionnally one with role **role::puppetreports**. The assignment of the VM created by vagrant and their roles can be found at https://github.com/lbernail/puppet-r10k/blob/production/manifests/nodes.pp
+Setting up the master is similar to standalone but the node needs the role **role::master** and you need a node with role **role::puppetdb** and optionnally one with role **role::puppetreports**. The assignment of the VM created by vagrant and their roles can be found at https://github.com/cringdahl/puppet-r10k/blob/production/manifests/nodes.pp
 ```
 node 'puppetmaster' {
   include role::master
@@ -63,7 +63,7 @@ node 'puppetreports' {
 }
 ```
 1. Create the puppetmaster: ```vagrant up puppetmaster```
-2. Create the puppetdb: ```vagrant up puppetdb```. This will install the agent and perform a first puppet run against the master. It will trigger warnings because the master is configured to use puppetdb (see the master profile) but this role is not available *yet*. You will not need to sign the node certificates because autosigned is configured on the master for puppetdb and puppetreports (autosign.conf is created by the master profile using data for hiera: https://github.com/lbernail/puppet-r10k/blob/production/hieradata/nodes/puppetmaster.vm.local.yaml)
+2. Create the puppetdb: ```vagrant up puppetdb```. This will install the agent and perform a first puppet run against the master. It will trigger warnings because the master is configured to use puppetdb (see the master profile) but this role is not available *yet*. You will not need to sign the node certificates because autosigned is configured on the master for puppetdb and puppetreports (autosign.conf is created by the master profile using data for hiera: https://github.com/cringdahl/puppet-r10k/blob/production/hieradata/nodes/puppetmaster.vm.local.yaml)
 3. Create the puppetreports node  ```vagrant up puppetreports```
 4. You can now access puppetboard at http://localhost:5001
 

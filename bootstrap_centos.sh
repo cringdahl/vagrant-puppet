@@ -59,7 +59,7 @@ cat > /etc/puppetlabs/r10k/r10k.yaml <<EOF
 cachedir: '/var/cache/r10k'
 sources:
   local:
-    remote: 'file:///tmp/r10k'
+    remote: 'file:///opt/r10k'
     basedir: '/etc/puppetlabs/code/environments'
 EOF
 
@@ -77,3 +77,10 @@ echo "Performing first puppet run"
 
 echo "Delete iptables rules"
 sudo iptables --flush > /dev/null 2>&1
+
+echo "====================="
+echo "To refresh r10k:"
+echo "1) make updates in /opt/r10k"
+echo "2) git commit -am 'commit message'"
+echo "3) /opt/puppetlabs/puppet/bin/r10k deploy environment -v -p"
+echo "====================="

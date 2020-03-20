@@ -11,13 +11,17 @@ echo "Installing puppet-agent"
 sudo yum install -y puppet-agent > /dev/null 2>&1
 useradd puppet
 chown -R puppet:puppet /etc/puppetlabs
+cat >> /etc/puppetlabs/puppet/puppet.conf <<EOF
+[main]
+server = $master
+EOF
 
 echo "Run puppet"
-sudo /opt/puppetlabs/puppet/bin/puppet agent -t --server $master
+sudo /opt/puppetlabs/puppet/bin/puppet agent -t
 echo "Bootstrap done"
 echo "If you saw a cert issue:"
 echo " 1) sign it on the puppetmaster "
-echo " 2) on the node, run \'puppet agent -t --server $master\'"
+echo " 2) on the node, run \'puppet agent -t\'"
 
 echo "Delete iptables rules"
 sudo iptables --flush > /dev/null 2>&1

@@ -17,7 +17,7 @@ sudo /opt/puppetlabs/puppet/bin/puppet agent -t --server $master
 echo "Bootstrap done"
 echo "If you saw a cert issue:"
 echo " 1) sign it on the puppetmaster "
-echo " 2) come back here and run \'puppet agent -t --server $master\'"
+echo " 2) on the node, run \'puppet agent -t --server $master\'"
 
 echo "Delete iptables rules"
 sudo iptables --flush > /dev/null 2>&1

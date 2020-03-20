@@ -1,0 +1,6 @@
+---
+profile_nginx::host: 'jenkins.cool'
+profile_nginx::proxy: 'http://localhost:8080'
+profile_nginx::ssl_cert: '/etc/pki/nginx/certs/websrv.vm.local.pem'
+profile_nginx::ssl_key: '/etc/pki/nginx/private_keys/websrv.vm.local.pem'
+profile_nginx::ssl_ca: '/etc/pki/nginx/certs/ca.pem'

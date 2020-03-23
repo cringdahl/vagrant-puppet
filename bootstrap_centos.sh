@@ -2,7 +2,6 @@ echo "$(whoami)"
 echo "Bootstrapping"
 
 release=`cat /etc/centos-release | cut -d " " -f 4 | cut -d "." -f 1`
-env="production"
 
 echo "Configuring EPEL repo"
 rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
@@ -51,17 +50,17 @@ hierarchy:
     path: "common.yaml"
 EOF
 
-echo "Creating r10k.yaml"
-rm -rf /etc/puppetlabs/code/environments/*
-mkdir -p /etc/puppetlabs/r10k
-cat > /etc/puppetlabs/r10k/r10k.yaml <<EOF
----
-cachedir: '/var/cache/r10k'
-sources:
-  local:
-    remote: 'file:///opt/r10k'
-    basedir: '/etc/puppetlabs/code/environments'
-EOF
+#echo "Creating r10k.yaml"
+#rm -rf /etc/puppetlabs/code/environments
+#mkdir -p /etc/puppetlabs/r10k
+#cat > /etc/puppetlabs/r10k/r10k.yaml <<EOF
+#---
+#cachedir: '/var/cache/r10k'
+#sources:
+#  local:
+#    remote: 'file:///opt/r10k'
+#    basedir: '/etc/puppetlabs/code/environments'
+#EOF
 
 echo "Installing hiera-eyaml gem"
 /opt/puppetlabs/puppet/bin/gem install hiera-eyaml --no-ri --no-rdoc > /dev/null
@@ -69,11 +68,11 @@ echo "Installing hiera-eyaml gem"
 echo "Installing r10k gem"
 /opt/puppetlabs/puppet/bin/gem install r10k --no-ri --no-rdoc > /dev/null
 echo "Deploying with r10k"
-/opt/puppetlabs/puppet/bin/r10k deploy environment -v -p
+/opt/puppetlabs/puppet/bin/r10k puppetfile install -v --puppetfile=/etc/puppetlabs/code/environments/production/Puppetfile --moduledir=/etc/puppetlabs/code/environments/production/modules
 
 echo "Performing first puppet run"
 # And remove default puppet.conf which raises warnings
-/opt/puppetlabs/puppet/bin/puppet apply /etc/puppetlabs/code/environments/$env/manifests --modulepath=/etc/puppetlabs/code/environments/$env/modules:/etc/puppetlabs/code/environments/$env/site --environment=$env
+/opt/puppetlabs/puppet/bin/puppet apply /etc/puppetlabs/code/environments/production/manifests --modulepath=/etc/puppetlabs/code/environments/production/modules:/etc/puppetlabs/code/environments/production/site
 
 echo "Delete iptables rules"
 sudo iptables --flush > /dev/null 2>&1

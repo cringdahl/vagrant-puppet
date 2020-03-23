@@ -55,6 +55,7 @@ EOF
     pm.vm.hostname = "#{MASTERNAME}.#{DOMAIN}"
     pm.vm.network :private_network, ip: "#{MASTERIP}"
     pm.vm.synced_folder "r10k/", "/etc/puppetlabs/code/environments/production"
+    pm.vm.synced_folder "r10k/", "/opt/r10k"
 #    pm.vm.synced_folder "r10k/", "/opt/r10k"
 #    pm.vm.provision "file", source: "./r10k", destination: "/opt/r10k"
 #    pm.vm.network :forwarded_port, guest: 5000, host: 5000

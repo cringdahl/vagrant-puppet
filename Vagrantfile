@@ -2,7 +2,9 @@
 # vi: set ft=ruby :
 
 # add or remove nodes here
-AGENTS=["websrv","test"]
+AGENTS=["test"]
+# Define one node for SSL web, localhost:8443
+AGENT_8443="websrv"
 
 GITHUB_KEY="~/.ssh/id_rsa.git"
 
@@ -33,7 +35,29 @@ Vagrant.configure VAGRANTFILE_API_VERSION do |config|
     prov.add_localhost_hostnames = false
     prov.add_host '10.10.109.208', ['github.rackspace.com']
   end
+  # creating dummy ssl certs for use by application software (e.g. nginx)
   config.vm.provision "shell", inline: <<-EOF
+
+    echo "generating dummy san config"
+    cat > /tmp/req.conf << THIS
+[req]
+distinguished_name = req_distinguished_name
+x509_extensions = v3_req
+prompt = no
+[req_distinguished_name]
+C = US
+ST = MN
+L = Localcity
+O = LocalCo
+OU = Localdiv
+CN = localhost
+[v3_req]
+keyUsage = keyEncipherment, dataEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+[alt_names]
+DNS.1 = www.localhost
+THIS
 
     echo "generating dummy ssl certificate"
     openssl req \
@@ -41,9 +65,10 @@ Vagrant.configure VAGRANTFILE_API_VERSION do |config|
       -nodes \
       -days 365 \
       -newkey rsa:2048 \
+      -config /tmp/req.conf \
+      -extensions 'v3_req' \
       -keyout /etc/ssl/localtest.key \
-      -out /etc/ssl/localtest.crt \
-      -subj '/C=DE/ST=Town/L=Baz/O=BAR/OU=FOO/CN=IT'
+      -out /etc/ssl/localtest.crt
     cat /etc/ssl/localtest.crt /etc/ssl/localtest.key > /etc/ssl/localtest.pem
 EOF
   # don't change this destination, it's handled in bootstrap_centos.sh
@@ -56,8 +81,6 @@ EOF
     pm.vm.network :private_network, ip: "#{MASTERIP}"
     pm.vm.synced_folder "r10k/", "/etc/puppetlabs/code/environments/production"
     pm.vm.synced_folder "r10k/", "/opt/r10k"
-#    pm.vm.synced_folder "r10k/", "/opt/r10k"
-#    pm.vm.provision "file", source: "./r10k", destination: "/opt/r10k"
 #    pm.vm.network :forwarded_port, guest: 5000, host: 5000
     pm.vm.provision :shell, :path => "bootstrap_centos.sh"
     pm.vm.provider "virtualbox" do |v|
@@ -66,36 +89,33 @@ EOF
     end
   end
 
+# In the unlikely event you want a separate puppetdb node, uncomment the following
 #  config.vm.define :puppetdb do |pm|
 #    pm.vm.hostname = "#{DBNAME}.#{DOMAIN}"
 #    pm.vm.network :private_network, ip: "#{DBIP}" 
 #    pm.vm.provision :shell, :path => "install_agent_centos.sh"
-#    pm.vm.provision :hosts do |prov|
-#      prov.vm.provision.autoconfigure = true
-#      prov.vm.provision.sync_hosts = true
-#      prov.add_host '10.10.109.208', ['github.rackspace.com']
 #    end
 #  end
 
+# In the unlikely event you want a puppetreports server, uncomment the following
 #  config.vm.define :puppetreports do |pm|
 #    pm.vm.hostname = "#{REPORTSNAME}.#{DOMAIN}"
 #    pm.vm.network :private_network, ip: "#{REPORTSIP}" 
 #    pm.vm.network :forwarded_port, guest: 5000, host: 5001
 #    pm.vm.provision :shell, :path => "install_agent_centos.sh"
-#    pm.vm.provision :hosts do |prov|
-#      prov.vm.provision.autoconfigure = true
-#      prov.vm.provision.sync_hosts = true
-#      prov.add_host '10.10.109.208', ['github.rackspace.com']
 #    end
 #  end
-
+  config.vm.define "#{AGENT_8443}".to_sym do |ag|
+      ag.vm.hostname = "#{AGENT_8443}.#{DOMAIN}"
+      ag.vm.network :private_network, ip: "#{SUBNET}.9"
+      ag.vm.network :forwarded_port, guest: 443, host: 8443
+      ag.vm.provision :shell, :path => "install_agent_centos.sh"
+  end
   AGENTS.each_with_index do |agent,index|
     config.vm.define "#{agent}".to_sym do |ag|
         ag.vm.hostname = "#{agent}.#{DOMAIN}"
         ag.vm.network :private_network, ip: "#{SUBNET}.#{index+10}"
         ag.vm.provision :shell, :path => "install_agent_centos.sh"
-        #ag.vm.synced_folder "~/.ssh", "/home/vagrant/.ssh"
     end
-  end  
-
+  end
 end

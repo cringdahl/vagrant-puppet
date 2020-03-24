@@ -1,0 +1,18 @@
+---
+profile::nginx::host: 'jenkins.cool'
+profile::nginx::proxy: 'http://localhost:8080'
+profile::nginx::listen_ip: '*'
+profile::nginx::listen_port: 443
+profile::nginx::ssl_cert: '/etc/ssl/localtest.crt'
+profile::nginx::ssl_key: '/etc/ssl/localtest.key'
+profile::nginx::ssl_trusted_cert: '/etc/ssl/certs/ca-bundle.crt'
+profile::nginx::ssl_port: 443
+profile::nginx::ssl_protocols: 'TLSv1.2'
+profile::nginx::ssl: true
+profile::nginx::proxy_set_header:
+   - 'Host $host'
+   - 'X-Real-IP $remote_addr'
+   - 'X-Forwarded-Host $host:$server_port'
+   - 'X-Forwarded-For $proxy_add_x_forwarded_for'
+   - 'Proxy ""'
+   - 'X-Forwarded-Proto $scheme'

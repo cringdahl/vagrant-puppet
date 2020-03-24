@@ -4,16 +4,13 @@ Configure a puppet development/demo environment with the following components:
 - puppetmaster, puppetdb and puppetboard (either on a single VM or multiple ones)
 - additional nodes to test agents
 - this repository consists of a Vagrantfile defining several possible hosts and bootstrap scripts to install master and agents
-- all the configuration is done via puppet using a control repo synchronized on the master via r10k: https://github.com/lbernail/puppet-r10k
+- all the configuration is done via puppet via r10k sync'd locally
 
 ### Bootstrap the puppetmaster in standalone mode
-This installation provides a master with puppetdb and puppetboard on single VM. To use this, your master node needs to have the role **role::master_standalone**. See https://github.com/lbernail/puppet-r10k/blob/production/manifests/nodes.pp for role assignment and https://github.com/lbernail/puppet-r10k/tree/production/site/role/manifests for role list. To change the master role (standalone or not) you will have to fork the puppet-r10k repo, modify theses files and update the r10k configuration in the bootstrap script to use your repo.
+This installation provides a master with puppetdb and puppetboard on single VM. To use this, your master node needs to have the role **role::master_standalone**. See _r10k/blob/production/manifests/nodes.pp_ for role assignment and _r10k/tree/production/site/role/manifests_ for role list. To change the master role (standalone or not) you will have to fork the puppet-r10k repo, modify theses files and update the r10k configuration in the bootstrap script to use your repo.
 
 * Install virtualbox and vagrant
 * Clone vagrant files
-```
-git clone https://github.com/lbernail/vagrant-puppet.git
-```
 * Go into puppet env, create puppet master and configure it (default box: boxcutter/ubuntu1604)
 ```
 cd vagrant-puppet
@@ -22,35 +19,19 @@ vagrant up puppetmaster
 *Details about virtual machines are in the Vagrantfile (private network for puppet, port redirection for puppetboard, hosts file)*
 * When the vm boots for the first time, vagrant provisioning kicks in using **bootstrap.sh**.
 Main steps:
-    - Modifying apt sources to rely on AWS Europe
-    - Configuring puppetlabs repo
-    - Updading apt cache
+    - Configuring EPEL & puppetlabs repo
     - Installing puppet, rubygems and git
-    - Install hiera-eyaml and copy sample keys (THESE ARE ONLY HERE TO HAVE A WORKING ENVIRONMENT. CHANGE THEM)
+    - Install hiera-eyaml and copy sample keys. _This is for test purposes only._
     - Creating hiera.yaml (simple conf, see bootstrap.sh content)
-    - Creating r10k.yaml (configure git repo with sitemodules, manifests and Puppetfile to download forge modules
     - Installing r10k gem
-    - Deploying with r10k (download all puppet conf from git / forge)
-    - Performing first puppet run (puppetmaster role configures puppet master, puppetdb and puppetboard)
+    - Deploying with r10k via {{r10k puppetfile}}
+    - Performing first puppet run (puppetmaster role configures puppet master, puppetdb)
 
-After a few minutes everything should ready and you should be able to access puppetboard from host: http://localhost:5000
-
-
-### Check master configuration
-1. Connect to master
-```
-vagrant ssh puppetmaster
-```
-2. First agent run on the master (first run was an apply run)
-```
-sudo /opt/puppetlabs/puppet/bin/puppet agent -t
-```  
-*This run will sync plugins and should do nothing (maybe a few changes because some modules change a few things on the second run)*
-3. Puppetboard will show the new run: http://localhost:5000/
+After a few minutes everything should ready.
 
 
 ### Bootstrap the puppetmaster with separate puppetdb and Puppetboard
-Setting up the master is similar to standalone but the node needs the role **role::master** and you need a node with role **role::puppetdb** and optionnally one with role **role::puppetreports**. The assignment of the VM created by vagrant and their roles can be found at https://github.com/lbernail/puppet-r10k/blob/production/manifests/nodes.pp
+Setting up the master is similar to standalone but the node needs the role **role::master** and you need a node with role **role::puppetdb** and optionnally one with role **role::puppetreports**. The assignment of the VM created by vagrant and their roles can be found at _r10k/blob/production/manifests/nodes.pp_
 ```
 node 'puppetmaster' {
   include role::master
@@ -63,28 +44,16 @@ node 'puppetreports' {
 }
 ```
 1. Create the puppetmaster: ```vagrant up puppetmaster```
-2. Create the puppetdb: ```vagrant up puppetdb```. This will install the agent and perform a first puppet run against the master. It will trigger warnings because the master is configured to use puppetdb (see the master profile) but this role is not available *yet*. You will not need to sign the node certificates because autosigned is configured on the master for puppetdb and puppetreports (autosign.conf is created by the master profile using data for hiera: https://github.com/lbernail/puppet-r10k/blob/production/hieradata/nodes/puppetmaster.vm.local.yaml)
+2. Create the puppetdb: ```vagrant up puppetdb```. This will install the agent and perform a first puppet run against the master. It will trigger warnings because the master is configured to use puppetdb (see the master profile) but this role is not available *yet*. You will not need to sign the node certificates because autosigned is configured on the master for puppetdb and puppetreports (autosign.conf is created by the master profile using data for hiera: https://github.com/cringdahl/puppet-r10k/blob/production/hieradata/nodes/puppetmaster.vm.local.yaml)
 3. Create the puppetreports node  ```vagrant up puppetreports```
 4. You can now access puppetboard at http://localhost:5001
 
 
 ### Add client virtual machines
-websrv and dbsrv are configured in Vagrantfile (very easy to add new ones): same private network setup, hosts file configuration, no puppet
-1. Create VM: ``` vagrant up websrv```. This will install the agent and perform a first run which will fail because websrv is not configured for autosigning.
-2. Connect to the master and list / sign
-```
-vagrant ssh puppetmaster
-sudo /opt/puppetlabs/puppet/bin/puppet cert list [--all]
-sudo /opt/puppetlabs/puppet/bin/puppet cert sign websrv.vm.local
-```
-3. Connect to the VM and rerun puppet
-```
-vagrant ssh websrv
-sudo /opt/puppetlabs/puppet/bin/puppet agent -t
-```  
-*This will only give a notice: Default class for unknown node (from default node in site.pp).  
-Puppetboard now shows this additional host*
-6. Change site.pp, add profile to websrv node,....
+websrv and test are configured in Vagrantfile (very easy to add new ones): same private network setup, hosts file configuration, no puppet
+1. Change site.pp, add profiles to websrv node.
+2. Create VM: ``` vagrant up websrv```. This will install the agent. The puppetmaster is configured to autosign all hosts. _This is for test purposes only._
+
 
 ### Support for hiera-eyaml
 This setup includes hiera-eyaml
@@ -118,13 +87,14 @@ vagrant snapshot go puppetmaster freshinstall
 ```
 You can find more information here: https://github.com/dergachev/vagrant-vbox-snapshot
 
-
-### Alternative separate install for centos7 support
-
-just add the env var `VAGRANT_VAGRANTFILE=Vagrantfile.centos` before you run commands, it will use the `Vagrantfile.centos` Vagrantfile, `boostrap_centos.sh`, `install_agent_centos.sh` bootstrap files.
-
+### Installing Puppet Modules
+If you have private modules you need installed, you can scp them to your puppetmaster.
+1. Install scp plugin
 ```
-VAGRANT_VAGRANTFILE=Vagrantfile.centos vagrant up puppetmaster
-VAGRANT_VAGRANTFILE=Vagrantfile.centos vagrant up puppetdb
-VAGRANT_VAGRANTFILE=Vagrantfile.centos vagrant up puppetreports
+vagrant plugin install scp
 ```
+2. Transfer the directory.
+```
+vagrant scp /path/to/directory/or/file puppetmaster:.
+```
+3. Login and mv the directory, or run a puppet module install.

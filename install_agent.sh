@@ -1,27 +1,23 @@
 master="puppetmaster.vm.local"
 
 echo "Installing puppet"
-
-release=`grep DISTRIB_CODENAME /etc/lsb-release | cut -d "=" -f 2`
-
-echo "Modifying apt sources to rely on AWS Europe"
-cat > /etc/apt/sources.list <<EOF
-deb http://eu-west-1.ec2.archive.ubuntu.com/ubuntu/ ${release} main restricted universe multiverse
-deb http://eu-west-1.ec2.archive.ubuntu.com/ubuntu/ ${release}-updates main restricted universe multiverse
-deb http://eu-west-1.ec2.archive.ubuntu.com/ubuntu/ ${release}-security main restricted universe multiverse
-EOF
+release=`cat /etc/centos-release | cut -d " " -f 4 | cut -d "." -f 1`
 
 echo "Configuring puppetlabs repo"
-wget -q https://apt.puppetlabs.com/puppetlabs-release-pc1-$release.deb -O /tmp/puppetlabs.deb
-dpkg -i /tmp/puppetlabs.deb > /dev/null
-echo "Updating apt cache"
-apt-get update > /dev/null
+sudo rpm -Uvh http://yum.puppet.com/puppet6/puppet6-release-el-7.noarch.rpm
+echo "Updating yum cache"
+sudo yum check-update > /dev/null
 echo "Installing puppet-agent"
-apt-get install -y puppet-agent > /dev/null 2>&1
+sudo yum install -y puppet-agent > /dev/null 2>&1
 useradd puppet
 chown -R puppet:puppet /etc/puppetlabs
+cat >> /etc/puppetlabs/puppet/puppet.conf <<EOF
+[main]
+server = $master
+EOF
 
 echo "Run puppet"
-/opt/puppetlabs/puppet/bin/puppet agent -t --server $master
-echo "Bootstrap done"
-echo "If you saw a cert issue, sign it on master and rerun puppet agent -t --server $master"
+sudo /opt/puppetlabs/puppet/bin/puppet agent -t
+
+echo "Delete iptables rules"
+sudo iptables --flush > /dev/null 2>&1

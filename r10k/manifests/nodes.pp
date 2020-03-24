@@ -17,6 +17,7 @@ node 'puppetmaster.vm.local' {
 #}
 
 node 'websrv.vm.local' {
+   include role::agent
    include jenkins
    class { 'profile_nginx::reverse_proxy': }
 }

@@ -1,7 +1,7 @@
 ---
 profile_nginx::host: 'jenkins.cool'
 profile_nginx::proxy: 'http://localhost:8080'
-profile_nginx::ssl_cert: '/etc/ssl/localtest.crt '
+profile_nginx::ssl_cert: '/etc/ssl/localtest.crt'
 profile_nginx::ssl_key: '/etc/ssl/localtest.key'
 profile_nginx::ssl_ca: '/etc/ssl/certs/ca-bundle.crt'
-profile_nginx::www_root: '/var/cache/jenkins/war'
+profile_nginx::ssl_port: 8443

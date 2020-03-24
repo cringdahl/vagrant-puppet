@@ -2,7 +2,8 @@
 # vi: set ft=ruby :
 
 # add or remove nodes here
-AGENTS=["test"]
+#AGENTS=["test"]
+AGENTS=[]
 # Define one node for SSL web, localhost:8443
 AGENT_8443="websrv"
 
@@ -108,7 +109,7 @@ EOF
   config.vm.define "#{AGENT_8443}".to_sym do |ag|
       ag.vm.hostname = "#{AGENT_8443}.#{DOMAIN}"
       ag.vm.network :private_network, ip: "#{SUBNET}.9"
-      ag.vm.network :forwarded_port, guest: 443, host: 8443
+      ag.vm.network :forwarded_port, guest: 8443, host: 8443
       ag.vm.provision :shell, :path => "install_agent_centos.sh"
   end
   AGENTS.each_with_index do |agent,index|

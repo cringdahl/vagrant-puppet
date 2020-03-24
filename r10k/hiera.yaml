@@ -10,6 +10,11 @@ defaults:
 hierarchy:
   - name: "Per-node data (yaml version)"
     path: "nodes/%{::trusted.certname}.yaml"
+  - name: "Secret data"
+    path: "secrets.eyaml"
+    lookup_key: eyaml_lookup_key
+    options:
+      pkcs7_private_key: /var/lib/puppet/secure/keys/private_key.pkcs7.pem
+      pkcs7_public_key: /var/lib/puppet/secure/keys/public_key.pkcs7.pem
   - name: "Other YAML hierarchy levels"
-    paths:
-      - "common.yaml"
+    path: "common.yaml"
